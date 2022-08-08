@@ -1,8 +1,6 @@
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
+import java.io.InputStream;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -22,7 +20,7 @@ public class App {
     public static void main(String[] args) throws Exception{
 
         // 1º - Pegar os dados do IMDB - Fazer conexão HTTPS e buscar os top 250 filmes;
-        String url = "https://imdb-api.com/en/API/MostPopularMovies/k_qel4efq8";
+        String url = "https://imdb-api.com/en/API/Top250Movies/k_qel4efq8";
         URI endereco = URI.create(url);
         var client = HttpClient.newHttpClient();
         var request = HttpRequest.newBuilder(endereco).GET().build();
@@ -36,11 +34,19 @@ public class App {
         List<Map<String, String>> listaDeFilmes = parser.parse(body);
 
 //          3º - Exibir e manipular os dados
+        var geradora = new GeradoraDeFigurinhas();
 
         for (Map<String,String> filme: listaDeFilmes) {
-            System.out.println("Ranking: " + filme.get("rank"));
-            System.out.println("Título: " + filme.get("title"));
-            System.out.println("Imdb Rating: " + filme.get("imDbRating"));
+            String urlImagem = filme.get("image");
+            String titulo = filme.get("title");
+            try{
+            String nomeArquivo = titulo + ".png";
+            InputStream inputStream = new URL(urlImagem).openStream();
+            geradora.cria(inputStream, nomeArquivo);
+            } catch (Exception e){
+                e.printStackTrace();
+            }
+            System.out.println(titulo);
             System.out.println();
         }
 
