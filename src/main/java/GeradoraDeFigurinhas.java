@@ -29,13 +29,13 @@ public class GeradoraDeFigurinhas {
         graphics.drawImage(imagemOriginal,0,0, null);
 
         // configurar a fonte
-        var fonte = new Font(Font.SANS_SERIF, Font.BOLD, 200);
+        var fonte = new Font(Font.SANS_SERIF, Font.BOLD, 64);
         graphics.setFont(fonte);
         graphics.setColor(Color.MAGENTA);
 
 
         // escrever uma frase na nova imagem
-        graphics.drawString("url",460,novaAltura - 50);
+        graphics.drawString("teste",360,novaAltura - 50);
 
         // salvar a nova imagem em um arquivo
         ImageIO.write(novaImagem, "png", new File(nomeArquivo));
