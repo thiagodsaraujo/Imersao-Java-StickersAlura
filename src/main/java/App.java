@@ -1,11 +1,6 @@
 import java.io.InputStream;
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.List;
-import java.util.Map;
 
 @lombok.NoArgsConstructor
 @lombok.Data
@@ -19,37 +14,31 @@ public class App {
 
     public static void main(String[] args) throws Exception{
 
-        // 1º - Pegar os dados do IMDB - Fazer conexão HTTPS e buscar os top 250 filmes;
+        ExtratorDeConteudo extrator = new ExtratorDeConteudoDoIMDB();
         String url = "https://imdb-api.com/en/API/Top250Movies/k_qel4efq8";
-        URI endereco = URI.create(url);
-        var client = HttpClient.newHttpClient();
-        var request = HttpRequest.newBuilder(endereco).GET().build();
-        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        String body = response.body();
 
-//        2º - Extrair os dados que interessam (titulo, poster, classificação); ( Parsear os dados)
-        // O ideal seria usar alguma biblioteca
+//        ExtratorDeConteudo extrator = new ExtratorDeConteudoDaNasa();
+//        String url = "https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&start_date=2022-06-12&end_date=2022-06-14";
 
-        var parser = new JsonParser();
-        List<Map<String, String>> listaDeFilmes = parser.parse(body);
+        var http = new ClienteHttp();
+        String json = http.buscaDados(url);
 
-//          3º - Exibir e manipular os dados
+
         var geradora = new GeradoraDeFigurinhas();
+        List<Conteudo> conteudos = extrator.extraiConteudos(json);
 
-        for (Map<String,String> filme: listaDeFilmes) {
-            String urlImagem = filme.get("image");
-            String titulo = filme.get("title");
-            try{
-            String nomeArquivo = titulo + ".png";
-            InputStream inputStream = new URL(urlImagem).openStream();
+        for (int i = 0; i < 3; i++) {
+
+            Conteudo conteudo = conteudos.get(i);
+
+            InputStream inputStream = new URL(conteudo.getUrlImagem()).openStream();
+            String nomeArquivo = "saida/" + conteudo.getTitulo() + ".png";
+
             geradora.cria(inputStream, nomeArquivo);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-            System.out.println(titulo);
+
+            System.out.println(conteudo.getTitulo());
             System.out.println();
         }
-
     }
 
     @lombok.NoArgsConstructor
